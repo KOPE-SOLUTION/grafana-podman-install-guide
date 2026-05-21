@@ -13,7 +13,7 @@ sudo apt update
 sudo apt install -y podman
 ```
 
-Verify:
+Verify installation:
 
 ```bash
 podman --version
@@ -32,34 +32,97 @@ podman pull docker.io/grafana/grafana:latest
 ## Create Persistent Folder
 
 ```bash
-mkdir -p ~/grafana-data
+mkdir ~/grafana-data
 ```
 
 ---
 
-## Run Grafana Container
+## Run Grafana Container (Recommended for Rootless Podman)
 
 ```bash
 podman run -d \
---name grafana \
--p 3000:3000 \
--v ~/grafana-data:/var/lib/grafana \
-docker.io/grafana/grafana:latest
+  --name grafana \
+  --userns keep-id \
+  -p 3000:3000 \
+  -v ~/grafana-data:/var/lib/grafana:Z \
+  --restart=unless-stopped \
+  docker.io/grafana/grafana:latest
+```
+
+---
+
+## Why Use `--userns keep-id` ?
+
+Grafana container may fail with:
+
+```text
+GF_PATHS_DATA='/var/lib/grafana' is not writable
+```
+
+This happens because Rootless Podman uses user namespace mapping.
+
+Using:
+
+```bash
+--userns keep-id
+```
+
+helps map the current Linux user correctly inside the container and fixes volume permission problems.
+
+---
+
+## Verify Running Container
+
+```bash
+podman ps
+```
+
+Example:
+
+```text
+CONTAINER ID  IMAGE                           STATUS         PORTS
+xxxxxxxxxxxx  grafana/grafana:latest         Up xx seconds  0.0.0.0:3000->3000/tcp
+```
+
+---
+
+## View Container Logs
+
+```bash
+podman logs grafana
+```
+
+or
+
+```bash
+podman logs -f grafana
 ```
 
 ---
 
 ## Access Grafana
 
+Open browser:
+
 ```text
 http://localhost:3000
 ```
 
-Default Login:
+or
+
+```text
+http://SERVER_IP:3000
+```
+
+---
+
+## Default Login
 
 | Username | Password |
 |---|---|
 | admin | admin |
+
+Grafana will ask you to change password after first login.
 
 ---
 
@@ -71,11 +134,15 @@ Default Login:
 podman stop grafana
 ```
 
+---
+
 ### Start Container
 
 ```bash
 podman start grafana
 ```
+
+---
 
 ### Restart Container
 
@@ -83,17 +150,25 @@ podman start grafana
 podman restart grafana
 ```
 
-### View Logs
-
-```bash
-podman logs -f grafana
-```
+---
 
 ### Remove Container
 
 ```bash
 podman rm -f grafana
 ```
+
+---
+
+## Persistent Storage
+
+Grafana data is stored inside:
+
+```text
+~/grafana-data
+```
+
+This allows dashboards and settings to remain after container restart.
 
 ---
 
@@ -116,4 +191,20 @@ D --> E[Grafana Dashboard]
 - SCADA Monitoring
 - MQTT Visualization
 - Energy Monitoring
+- Industrial IoT
+- Factory Dashboard
+- Real-Time Monitoring
+- Production Dashboard
+
+---
+
+## Related Technologies
+
+- Grafana
+- Podman
+- MQTT
+- Node-RED
+- PLC
+- SCADA
+- InfluxDB
 - Industrial IoT
