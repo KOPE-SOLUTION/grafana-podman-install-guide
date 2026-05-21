@@ -2,6 +2,8 @@
 
 Step-by-Step guide for installing Grafana using Podman on Linux / WSL Ubuntu.
 
+![Thumbnail](images/thumbnail.png)
+
 ---
 
 ## Install Podman
