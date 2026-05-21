@@ -32,42 +32,22 @@ podman pull docker.io/grafana/grafana:latest
 ## Create Persistent Folder
 
 ```bash
-mkdir ~/grafana-data
+mkdir -p ~/grafana-data
+chmod 777 ~/grafana-data
 ```
 
 ---
 
-## Run Grafana Container (Recommended for Rootless Podman)
+## Run Grafana Container
 
 ```bash
 podman run -d \
   --name grafana \
-  --userns keep-id \
   -p 3000:3000 \
   -v ~/grafana-data:/var/lib/grafana:Z \
   --restart=unless-stopped \
   docker.io/grafana/grafana:latest
 ```
-
----
-
-## Why Use `--userns keep-id` ?
-
-Grafana container may fail with:
-
-```text
-GF_PATHS_DATA='/var/lib/grafana' is not writable
-```
-
-This happens because Rootless Podman uses user namespace mapping.
-
-Using:
-
-```bash
---userns keep-id
-```
-
-helps map the current Linux user correctly inside the container and fixes volume permission problems.
 
 ---
 
